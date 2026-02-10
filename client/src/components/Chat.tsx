@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { User, ChatMessage } from "../types";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -10,15 +11,28 @@ interface ChatProps {
 }
 
 function Chat({ currentUser, users, messages }: ChatProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="chat">
-      <div className="chat-sidebar">
+      <button
+        className="sidebar-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label="Toggle user list"
+      >
+        {sidebarOpen ? "x" : ">"}
+      </button>
+      <div
+        className={`sidebar-overlay${sidebarOpen ? " open" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+      <div className={`chat-sidebar${sidebarOpen ? " open" : ""}`}>
         <div className="chat-logo">chatme</div>
         <UserList users={users} currentUsername={currentUser.username} />
       </div>
       <div className="chat-main">
         <div className="chat-header">
-          <span className="chat-header-title">General Chat</span>
+          <span className="chat-header-title"># general</span>
           <span className="chat-header-user">
             {currentUser.username}
           </span>

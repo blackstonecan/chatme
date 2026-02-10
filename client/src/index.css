@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -5,10 +7,9 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
-  background-color: #16162a;
-  color: #ddd;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  background-color: #0a0a0a;
+  color: #00ff41;
   min-height: 100vh;
 }
 
