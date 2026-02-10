@@ -2,7 +2,7 @@ export interface ServerToClientEvents {
   "chat:message": (message: ChatMessage) => void;
   "chat:userJoined": (user: User) => void;
   "chat:userLeft": (user: User) => void;
-  "chat:welcome": (data: { user: User; users: User[] }) => void;
+  "chat:welcome": (data: { user: User; users: User[]; messages: ChatMessage[] }) => void;
 }
 
 export interface ClientToServerEvents {

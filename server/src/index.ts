@@ -47,6 +47,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
 });
 
 const users = new Map<string, User>();
+const messages: ChatMessage[] = [];
 
 io.on("connection", (socket) => {
   const user: User = {
@@ -58,6 +59,7 @@ io.on("connection", (socket) => {
   socket.emit("chat:welcome", {
     user,
     users: Array.from(users.values()),
+    messages,
   });
 
   socket.broadcast.emit("chat:userJoined", user);
@@ -72,6 +74,9 @@ io.on("connection", (socket) => {
       content: trimmed,
       timestamp: Date.now(),
     };
+
+    messages.push(message);
+    if (messages.length > 20) messages.shift();
 
     io.emit("chat:message", message);
   });

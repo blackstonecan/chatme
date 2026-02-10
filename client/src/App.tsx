@@ -21,9 +21,10 @@ function App() {
       setIsConnected(false);
     }
 
-    function onWelcome(data: { user: User; users: User[] }) {
+    function onWelcome(data: { user: User; users: User[]; messages: ChatMessage[] }) {
       setCurrentUser(data.user);
       setUsers(data.users);
+      setMessages(data.messages);
     }
 
     function onMessage(message: ChatMessage) {
