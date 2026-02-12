@@ -36,6 +36,14 @@ function Chat({ currentUser, users, messages, encryptionKey, onEncryptionKeyChan
       <div className="chat-main">
         <div className="chat-header">
           <span className="chat-header-title"># general</span>
+          <label className="show-public-toggle">
+            <input
+              type="checkbox"
+              checked={showPublic}
+              onChange={(e) => setShowPublic(e.target.checked)}
+            />
+            show public
+          </label>
           <span className="chat-header-user">
             {currentUser.username}
           </span>
@@ -49,8 +57,6 @@ function Chat({ currentUser, users, messages, encryptionKey, onEncryptionKeyChan
         <MessageInput
           encryptionKey={encryptionKey}
           onEncryptionKeyChange={onEncryptionKeyChange}
-          showPublic={showPublic}
-          onShowPublicChange={setShowPublic}
         />
       </div>
     </div>
