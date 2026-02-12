@@ -48,7 +48,8 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
 });
 
 const users = new Map<string, User>();
-const messages: ChatMessage[] = [];
+const publicMessages: ChatMessage[] = [];
+const encryptedBuckets = new Map<string, { messages: ChatMessage[]; lastActivity: number }>();
 const connectionsPerIp = new Map<string, number>();
 const rateLimits = new Map<string, { count: number; resetAt: number }>();
 
@@ -56,6 +57,30 @@ const MAX_CONNECTIONS = 100;
 const MAX_CONNECTIONS_PER_IP = 5;
 const RATE_LIMIT_WINDOW = 10_000;
 const RATE_LIMIT_MAX = 10;
+const MAX_MESSAGES_PER_BUCKET = 20;
+const MAX_ENCRYPTED_BUCKETS = 100;
+
+function getAllMessages(): ChatMessage[] {
+  const all: ChatMessage[] = [...publicMessages];
+  for (const bucket of encryptedBuckets.values()) {
+    all.push(...bucket.messages);
+  }
+  return all.sort((a, b) => a.timestamp - b.timestamp);
+}
+
+function evictLruBucket(): void {
+  let oldestKey = "";
+  let oldestTime = Infinity;
+  for (const [keyHash, bucket] of encryptedBuckets) {
+    if (bucket.lastActivity < oldestTime) {
+      oldestTime = bucket.lastActivity;
+      oldestKey = keyHash;
+    }
+  }
+  if (oldestKey) {
+    encryptedBuckets.delete(oldestKey);
+  }
+}
 
 function isRateLimited(socketId: string): boolean {
   const now = Date.now();
@@ -95,17 +120,18 @@ io.on("connection", (socket) => {
   socket.emit("chat:welcome", {
     user,
     users: Array.from(users.values()),
-    messages,
+    messages: getAllMessages(),
   });
 
   socket.broadcast.emit("chat:userJoined", user);
 
-  socket.on("chat:sendMessage", (payload: { key: string; data: string }) => {
+  socket.on("chat:sendMessage", (payload: { keyHash: string; key: string; data: string }) => {
     if (isRateLimited(socket.id)) return;
 
     if (
       typeof payload !== "object" ||
       payload === null ||
+      typeof payload.keyHash !== "string" ||
       typeof payload.key !== "string" ||
       typeof payload.data !== "string" ||
       payload.data.trim().length === 0
@@ -114,13 +140,28 @@ io.on("connection", (socket) => {
     const message: ChatMessage = {
       id: generateMessageId(),
       username: user.username,
+      keyHash: payload.keyHash.slice(0, 100),
       key: payload.key.slice(0, 5000),
       data: payload.data.slice(0, 5000),
       timestamp: Date.now(),
     };
 
-    messages.push(message);
-    if (messages.length > 20) messages.shift();
+    if (message.keyHash === "") {
+      publicMessages.push(message);
+      if (publicMessages.length > MAX_MESSAGES_PER_BUCKET) publicMessages.shift();
+    } else {
+      let bucket = encryptedBuckets.get(message.keyHash);
+      if (!bucket) {
+        if (encryptedBuckets.size >= MAX_ENCRYPTED_BUCKETS) {
+          evictLruBucket();
+        }
+        bucket = { messages: [], lastActivity: 0 };
+        encryptedBuckets.set(message.keyHash, bucket);
+      }
+      bucket.messages.push(message);
+      bucket.lastActivity = message.timestamp;
+      if (bucket.messages.length > MAX_MESSAGES_PER_BUCKET) bucket.messages.shift();
+    }
 
     io.emit("chat:message", message);
   });

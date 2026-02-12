@@ -40,6 +40,12 @@ async function deriveKey(
   );
 }
 
+export async function hashKey(passphrase: string): Promise<string> {
+  const encoded = new TextEncoder().encode(passphrase);
+  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", encoded));
+  return toBase64(hash);
+}
+
 export async function encrypt(
   plaintext: string,
   passphrase: string

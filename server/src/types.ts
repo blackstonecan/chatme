@@ -6,12 +6,13 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-  "chat:sendMessage": (payload: { key: string; data: string }) => void;
+  "chat:sendMessage": (payload: { keyHash: string; key: string; data: string }) => void;
 }
 
 export interface ChatMessage {
   id: string;
   username: string;
+  keyHash: string;
   key: string;
   data: string;
   timestamp: number;

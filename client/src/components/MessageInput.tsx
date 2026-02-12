@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { socket } from "../socket";
-import { encrypt } from "../crypto";
+import { encrypt, hashKey } from "../crypto";
 
 interface MessageInputProps {
   encryptionKey: string;
@@ -17,14 +17,15 @@ function MessageInput({ encryptionKey, onEncryptionKeyChange, encryptionLocked, 
     const trimmed = value.trim();
     if (trimmed.length === 0) return;
 
-    let payload: { key: string; data: string };
+    let payload: { keyHash: string; key: string; data: string };
 
     if (encryptionKey.length > 0 && encryptionLocked) {
+      const kh = await hashKey(encryptionKey);
       const encryptedKey = await encrypt(encryptionKey, encryptionKey);
       const encryptedData = await encrypt(trimmed, encryptionKey);
-      payload = { key: encryptedKey, data: encryptedData };
+      payload = { keyHash: kh, key: encryptedKey, data: encryptedData };
     } else {
-      payload = { key: "", data: trimmed };
+      payload = { keyHash: "", key: "", data: trimmed };
     }
 
     socket.emit("chat:sendMessage", payload);
