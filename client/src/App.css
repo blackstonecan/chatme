@@ -262,6 +262,10 @@
 }
 
 .show-public-toggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 100;
   display: flex;
   align-items: center;
   gap: 6px;
