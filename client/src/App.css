@@ -261,6 +261,31 @@
   white-space: nowrap;
 }
 
+.toggle-public-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid #1a3a1a;
+  background-color: transparent;
+  color: #2d6a2d;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  text-transform: lowercase;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.toggle-public-btn:hover {
+  border-color: #00ff41;
+  color: #00ff41;
+}
+
+.toggle-public-btn.active {
+  border-color: #00ff41;
+  color: #00ff41;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+}
+
 .message-encrypted-badge {
   font-size: 0.55rem;
   color: #2d8a2d;

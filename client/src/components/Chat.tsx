@@ -14,6 +14,7 @@ interface ChatProps {
 
 function Chat({ currentUser, users, messages, encryptionKey, onEncryptionKeyChange }: ChatProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showPublic, setShowPublic] = useState(true);
 
   return (
     <div className="chat">
@@ -43,10 +44,13 @@ function Chat({ currentUser, users, messages, encryptionKey, onEncryptionKeyChan
           messages={messages}
           currentUsername={currentUser.username}
           encryptionKey={encryptionKey}
+          showPublic={showPublic}
         />
         <MessageInput
           encryptionKey={encryptionKey}
           onEncryptionKeyChange={onEncryptionKeyChange}
+          showPublic={showPublic}
+          onShowPublicChange={setShowPublic}
         />
       </div>
     </div>

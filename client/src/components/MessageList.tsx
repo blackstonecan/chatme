@@ -6,6 +6,7 @@ interface MessageListProps {
   messages: ChatMessage[];
   currentUsername: string;
   encryptionKey: string;
+  showPublic: boolean;
 }
 
 interface ResolvedMessage {
@@ -23,7 +24,7 @@ function formatTime(timestamp: number): string {
   });
 }
 
-function MessageList({ messages, currentUsername, encryptionKey }: MessageListProps) {
+function MessageList({ messages, currentUsername, encryptionKey, showPublic }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [resolvedMessages, setResolvedMessages] = useState<ResolvedMessage[]>([]);
 
@@ -67,11 +68,15 @@ function MessageList({ messages, currentUsername, encryptionKey }: MessageListPr
     return () => { cancelled = true; };
   }, [messages, encryptionKey]);
 
+  const displayMessages = showPublic
+    ? resolvedMessages
+    : resolvedMessages.filter((msg) => msg.encrypted);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [resolvedMessages.length]);
+  }, [displayMessages.length]);
 
-  if (resolvedMessages.length === 0) {
+  if (displayMessages.length === 0) {
     return (
       <div className="message-list">
         <div className="message-list-empty">
@@ -84,7 +89,7 @@ function MessageList({ messages, currentUsername, encryptionKey }: MessageListPr
 
   return (
     <div className="message-list">
-      {resolvedMessages.map((msg) => {
+      {displayMessages.map((msg) => {
         const isOwn = msg.username === currentUsername;
         return (
           <div

@@ -5,9 +5,11 @@ import { encrypt } from "../crypto";
 interface MessageInputProps {
   encryptionKey: string;
   onEncryptionKeyChange: (key: string) => void;
+  showPublic: boolean;
+  onShowPublicChange: (show: boolean) => void;
 }
 
-function MessageInput({ encryptionKey, onEncryptionKeyChange }: MessageInputProps) {
+function MessageInput({ encryptionKey, onEncryptionKeyChange, showPublic, onShowPublicChange }: MessageInputProps) {
   const [value, setValue] = useState("");
 
   async function handleSubmit(e: FormEvent) {
@@ -42,6 +44,13 @@ function MessageInput({ encryptionKey, onEncryptionKeyChange }: MessageInputProp
         {encryptionKey.length > 0 && (
           <span className="encryption-indicator">encrypted</span>
         )}
+        <button
+          type="button"
+          className={`toggle-public-btn${showPublic ? "" : " active"}`}
+          onClick={() => onShowPublicChange(!showPublic)}
+        >
+          {showPublic ? "hide public" : "show public"}
+        </button>
       </div>
       <form className="message-input" onSubmit={handleSubmit}>
         <input
