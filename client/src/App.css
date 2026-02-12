@@ -193,6 +193,11 @@
   color: #4a9e4a;
 }
 
+.message-encrypted {
+  border-left: 3px solid #00ff41;
+  box-shadow: -2px 0 8px rgba(0, 255, 65, 0.15);
+}
+
 .message-header {
   display: flex;
   align-items: baseline;
@@ -252,6 +257,30 @@
   color: #1a5a1a;
 }
 
+.lock-toggle {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #1a3a1a;
+  background: transparent;
+  color: #2d6a2d;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.lock-toggle:hover {
+  border-color: #00ff41;
+  color: #00ff41;
+}
+
+.lock-toggle.locked {
+  border-color: #00ff41;
+  color: #00ff41;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+}
+
 .encryption-indicator {
   font-size: 0.65rem;
   color: #00ff41;
@@ -259,6 +288,11 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   white-space: nowrap;
+}
+
+.encryption-indicator.paused {
+  color: #8a8a2d;
+  text-shadow: 0 0 6px rgba(138, 138, 45, 0.4);
 }
 
 .chat-header-right {

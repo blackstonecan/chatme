@@ -5,9 +5,11 @@ import { encrypt } from "../crypto";
 interface MessageInputProps {
   encryptionKey: string;
   onEncryptionKeyChange: (key: string) => void;
+  encryptionLocked: boolean;
+  onEncryptionLockedChange: (locked: boolean) => void;
 }
 
-function MessageInput({ encryptionKey, onEncryptionKeyChange }: MessageInputProps) {
+function MessageInput({ encryptionKey, onEncryptionKeyChange, encryptionLocked, onEncryptionLockedChange }: MessageInputProps) {
   const [value, setValue] = useState("");
 
   async function handleSubmit(e: FormEvent) {
@@ -17,7 +19,7 @@ function MessageInput({ encryptionKey, onEncryptionKeyChange }: MessageInputProp
 
     let payload: { key: string; data: string };
 
-    if (encryptionKey.length > 0) {
+    if (encryptionKey.length > 0 && encryptionLocked) {
       const encryptedKey = await encrypt(encryptionKey, encryptionKey);
       const encryptedData = await encrypt(trimmed, encryptionKey);
       payload = { key: encryptedKey, data: encryptedData };
@@ -40,7 +42,19 @@ function MessageInput({ encryptionKey, onEncryptionKeyChange }: MessageInputProp
           className="encryption-key-input"
         />
         {encryptionKey.length > 0 && (
-          <span className="encryption-indicator">encrypted</span>
+          <>
+            <button
+              type="button"
+              className={`lock-toggle${encryptionLocked ? " locked" : ""}`}
+              onClick={() => onEncryptionLockedChange(!encryptionLocked)}
+              aria-label={encryptionLocked ? "Unlock encryption" : "Lock encryption"}
+            >
+              {encryptionLocked ? "[locked]" : "[unlocked]"}
+            </button>
+            <span className={`encryption-indicator${encryptionLocked ? "" : " paused"}`}>
+              {encryptionLocked ? "encrypted" : "plaintext"}
+            </span>
+          </>
         )}
       </div>
       <form className="message-input" onSubmit={handleSubmit}>

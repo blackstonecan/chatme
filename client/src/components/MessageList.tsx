@@ -94,7 +94,7 @@ function MessageList({ messages, currentUsername, encryptionKey, showPublic }: M
         return (
           <div
             key={msg.id}
-            className={`message ${isOwn ? "message-own" : "message-other"}`}
+            className={`message ${isOwn ? "message-own" : "message-other"}${msg.encrypted ? " message-encrypted" : ""}`}
           >
             <div className="message-header">
               <span className="message-username">
