@@ -64,14 +64,20 @@ io.on("connection", (socket) => {
 
   socket.broadcast.emit("chat:userJoined", user);
 
-  socket.on("chat:sendMessage", (content: string) => {
-    if (typeof content !== "string" || content.trim().length === 0) return;
-    const trimmed = content.trim().slice(0, 1000);
+  socket.on("chat:sendMessage", (payload: { key: string; data: string }) => {
+    if (
+      typeof payload !== "object" ||
+      payload === null ||
+      typeof payload.key !== "string" ||
+      typeof payload.data !== "string" ||
+      payload.data.trim().length === 0
+    ) return;
 
     const message: ChatMessage = {
       id: generateMessageId(),
       username: user.username,
-      content: trimmed,
+      key: payload.key.slice(0, 5000),
+      data: payload.data.slice(0, 5000),
       timestamp: Date.now(),
     };
 

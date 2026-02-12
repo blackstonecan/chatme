@@ -1,9 +1,19 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "../types";
+import { decrypt } from "../crypto";
 
 interface MessageListProps {
   messages: ChatMessage[];
   currentUsername: string;
+  encryptionKey: string;
+}
+
+interface ResolvedMessage {
+  id: string;
+  username: string;
+  content: string;
+  timestamp: number;
+  encrypted: boolean;
 }
 
 function formatTime(timestamp: number): string {
@@ -13,14 +23,55 @@ function formatTime(timestamp: number): string {
   });
 }
 
-function MessageList({ messages, currentUsername }: MessageListProps) {
+function MessageList({ messages, currentUsername, encryptionKey }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [resolvedMessages, setResolvedMessages] = useState<ResolvedMessage[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function resolveMessages() {
+      const resolved: ResolvedMessage[] = [];
+
+      for (const msg of messages) {
+        if (msg.key === "") {
+          resolved.push({
+            id: msg.id,
+            username: msg.username,
+            content: msg.data,
+            timestamp: msg.timestamp,
+            encrypted: false,
+          });
+        } else {
+          if (encryptionKey.length === 0) continue;
+          const decryptedKey = await decrypt(msg.key, encryptionKey);
+          if (decryptedKey === null || decryptedKey !== encryptionKey) continue;
+          const decryptedData = await decrypt(msg.data, encryptionKey);
+          if (decryptedData === null) continue;
+          resolved.push({
+            id: msg.id,
+            username: msg.username,
+            content: decryptedData,
+            timestamp: msg.timestamp,
+            encrypted: true,
+          });
+        }
+      }
+
+      if (!cancelled) {
+        setResolvedMessages(resolved);
+      }
+    }
+
+    resolveMessages();
+    return () => { cancelled = true; };
+  }, [messages, encryptionKey]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+  }, [resolvedMessages.length]);
 
-  if (messages.length === 0) {
+  if (resolvedMessages.length === 0) {
     return (
       <div className="message-list">
         <div className="message-list-empty">
@@ -33,7 +84,7 @@ function MessageList({ messages, currentUsername }: MessageListProps) {
 
   return (
     <div className="message-list">
-      {messages.map((msg) => {
+      {resolvedMessages.map((msg) => {
         const isOwn = msg.username === currentUsername;
         return (
           <div
@@ -44,6 +95,9 @@ function MessageList({ messages, currentUsername }: MessageListProps) {
               <span className="message-username">
                 {isOwn ? "You" : msg.username}
               </span>
+              {msg.encrypted && (
+                <span className="message-encrypted-badge">encrypted</span>
+              )}
               <span className="message-time">{formatTime(msg.timestamp)}</span>
             </div>
             <div className="message-content">{msg.content}</div>

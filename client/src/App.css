@@ -217,12 +217,62 @@
   line-height: 1.4;
 }
 
+/* Message input container */
+.message-input-container {
+  border-top: 1px solid #1a3a1a;
+  flex-shrink: 0;
+}
+
+.encryption-key-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px 0 20px;
+}
+
+.encryption-key-input {
+  flex: 1;
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid #1a3a1a;
+  background-color: #0d0d0d;
+  color: #00ff41;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.75rem;
+  outline: none;
+  caret-color: #00ff41;
+}
+
+.encryption-key-input:focus {
+  border-color: #00ff41;
+  box-shadow: 0 0 6px rgba(0, 255, 65, 0.2);
+}
+
+.encryption-key-input::placeholder {
+  color: #1a5a1a;
+}
+
+.encryption-indicator {
+  font-size: 0.65rem;
+  color: #00ff41;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.message-encrypted-badge {
+  font-size: 0.55rem;
+  color: #2d8a2d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Message input */
 .message-input {
   display: flex;
   gap: 8px;
   padding: 12px 20px;
-  border-top: 1px solid #1a3a1a;
   flex-shrink: 0;
 }
 
@@ -326,6 +376,10 @@
     max-width: 85%;
   }
 
+  .encryption-key-row {
+    padding: 6px 12px 0 12px;
+  }
+
   .message-input {
     padding: 10px 12px;
   }
@@ -346,6 +400,15 @@
 
   .message-list {
     padding: 12px;
+  }
+
+  .encryption-key-row {
+    padding: 4px 10px 0 10px;
+  }
+
+  .encryption-key-input {
+    padding: 6px 10px;
+    font-size: 0.7rem;
   }
 
   .message-input {

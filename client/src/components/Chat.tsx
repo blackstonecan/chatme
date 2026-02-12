@@ -8,9 +8,11 @@ interface ChatProps {
   currentUser: User;
   users: User[];
   messages: ChatMessage[];
+  encryptionKey: string;
+  onEncryptionKeyChange: (key: string) => void;
 }
 
-function Chat({ currentUser, users, messages }: ChatProps) {
+function Chat({ currentUser, users, messages, encryptionKey, onEncryptionKeyChange }: ChatProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -40,8 +42,12 @@ function Chat({ currentUser, users, messages }: ChatProps) {
         <MessageList
           messages={messages}
           currentUsername={currentUser.username}
+          encryptionKey={encryptionKey}
         />
-        <MessageInput />
+        <MessageInput
+          encryptionKey={encryptionKey}
+          onEncryptionKeyChange={onEncryptionKeyChange}
+        />
       </div>
     </div>
   );

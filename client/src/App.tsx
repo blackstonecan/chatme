@@ -9,6 +9,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [encryptionKey, setEncryptionKey] = useState("");
 
   useEffect(() => {
     socket.connect();
@@ -62,7 +63,13 @@ function App() {
   }
 
   return (
-    <Chat currentUser={currentUser} users={users} messages={messages} />
+    <Chat
+      currentUser={currentUser}
+      users={users}
+      messages={messages}
+      encryptionKey={encryptionKey}
+      onEncryptionKeyChange={setEncryptionKey}
+    />
   );
 }
 
