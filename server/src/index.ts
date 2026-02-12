@@ -40,16 +40,52 @@ const httpServer = createServer((req, res) => {
 });
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
+  maxHttpBufferSize: 10_000,
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://chat.arkidish.com"],
     methods: ["GET", "POST"],
   },
 });
 
 const users = new Map<string, User>();
 const messages: ChatMessage[] = [];
+const connectionsPerIp = new Map<string, number>();
+const rateLimits = new Map<string, { count: number; resetAt: number }>();
+
+const MAX_CONNECTIONS = 100;
+const MAX_CONNECTIONS_PER_IP = 5;
+const RATE_LIMIT_WINDOW = 10_000;
+const RATE_LIMIT_MAX = 10;
+
+function isRateLimited(socketId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimits.get(socketId);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimits.set(socketId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
 
 io.on("connection", (socket) => {
+  if (io.engine.clientsCount > MAX_CONNECTIONS) {
+    socket.disconnect(true);
+    return;
+  }
+
+  const ip = socket.handshake.headers["x-real-ip"] as string
+    || socket.handshake.address;
+
+  const currentCount = connectionsPerIp.get(ip) || 0;
+  if (currentCount >= MAX_CONNECTIONS_PER_IP) {
+    socket.disconnect(true);
+    return;
+  }
+  connectionsPerIp.set(ip, currentCount + 1);
+
   const user: User = {
     id: socket.id,
     username: generateUsername(),
@@ -65,6 +101,8 @@ io.on("connection", (socket) => {
   socket.broadcast.emit("chat:userJoined", user);
 
   socket.on("chat:sendMessage", (payload: { key: string; data: string }) => {
+    if (isRateLimited(socket.id)) return;
+
     if (
       typeof payload !== "object" ||
       payload === null ||
@@ -89,7 +127,15 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     users.delete(socket.id);
+    rateLimits.delete(socket.id);
     io.emit("chat:userLeft", user);
+
+    const count = connectionsPerIp.get(ip) || 1;
+    if (count <= 1) {
+      connectionsPerIp.delete(ip);
+    } else {
+      connectionsPerIp.set(ip, count - 1);
+    }
   });
 });
 
