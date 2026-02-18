@@ -41,8 +41,8 @@
 .sidebar-toggle {
   display: none;
   position: fixed;
-  top: 10px;
-  left: 10px;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: calc(10px + env(safe-area-inset-left, 0px));
   z-index: 100;
   background: #0d0d0d;
   border: 1px solid #1a3a1a;
@@ -133,6 +133,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
   border-bottom: 1px solid #1a3a1a;
   flex-shrink: 0;
 }
@@ -156,6 +157,7 @@
 .message-list {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
@@ -210,6 +212,10 @@
   font-weight: 600;
   color: inherit;
   opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
 }
 
 .message-time {
@@ -226,16 +232,19 @@
 .message-input-container {
   border-top: 1px solid #1a3a1a;
   flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .encryption-key-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 8px 20px 0 20px;
 }
 
 .encryption-key-input {
+  min-width: 0;
   flex: 1;
   padding: 6px 14px;
   border-radius: 4px;
@@ -452,6 +461,10 @@
     display: block;
   }
 
+  .chat-sidebar {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
   .chat-header {
     padding: 12px 20px 12px 50px;
   }
@@ -478,8 +491,20 @@
     display: none;
   }
 
+  .chat-header-right {
+    gap: 8px;
+  }
+
+  .show-public-toggle {
+    font-size: 0.6rem;
+  }
+
   .message {
     max-width: 90%;
+  }
+
+  .message-username {
+    max-width: 80px;
   }
 
   .message-list {
@@ -493,6 +518,15 @@
   .encryption-key-input {
     padding: 6px 10px;
     font-size: 0.7rem;
+  }
+
+  .lock-toggle {
+    font-size: 0.6rem;
+    padding: 3px 6px;
+  }
+
+  .encryption-indicator {
+    font-size: 0.6rem;
   }
 
   .message-input {
